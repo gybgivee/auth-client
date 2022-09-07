@@ -11,15 +11,43 @@ export default function App() {
     const register = async (e) => {
         e.preventDefault();
         // Write your register code here
+        const { username, password } = user;
+        let data;
+        try {
 
+            const respone = await fetch('http://localhost:4000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            data = await respone.json();
+            setRegisterResponse(`Hello My name is ${data.data.user.username}`)
+           
+        } catch (e) {
+            setRegisterResponse(data.data.error);
+        }
 
     };
 
     const login = async (e) => {
         e.preventDefault();
         // Write your login code here
+        const { username, password } = user;
+        let data;
+        try {
 
-        
+            const respone = await fetch('http://localhost:4000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            data = await respone.json();
+            setLoginResponse(data.data.token)
+            
+        } catch (e) {
+            setLoginResponse(data.data.error);
+        }
+
     };
 
 
