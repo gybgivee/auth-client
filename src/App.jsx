@@ -12,20 +12,27 @@ export default function App() {
         e.preventDefault();
         // Write your register code here
         const { username, password } = user;
-        let data;
-        try {
-
-            const respone = await fetch('http://localhost:4000/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+        const auth = localStorage.getItem('auth');
+        let errMessage;
+        fetch('http://localhost:4000/register', {
+            method: 'POST',
+            headers: auth ? new Headers({
+                'Authorization': `Bearer ${auth}`,
+                'Content-Type': 'application/json'
+            }) : new Headers({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ username, password })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                if (data.user) {
+                    setRegisterResponse(`Hello my name is ${data.user.username}`)
+                } else {
+                    setRegisterResponse(data.error);
+                }
+            }).catch((err) => {
+                console.log(err);
             });
-            data = await respone.json();
-            setRegisterResponse(`Hello My name is ${data.data.user.username}`)
-           
-        } catch (e) {
-            setRegisterResponse(data.data.error);
-        }
 
     };
 
@@ -41,11 +48,17 @@ export default function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
-            data = await respone.json();
-            setLoginResponse(data.data.token)
-            
+            const data = await respone.json();
+            console.log(data);
+            if (data.token) {
+                setLoginResponse(data.token)
+                localStorage.setItem('auth', loginResponse);
+            } else {
+                setLoginResponse(data.error);
+            }
+
         } catch (e) {
-            setLoginResponse(data.data.error);
+            console.log({ e });
         }
 
     };
